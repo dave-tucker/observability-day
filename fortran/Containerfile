@@ -1,0 +1,5 @@
+FROM fedora:38
+RUN dnf update -qy && dnf install -qy gfortran
+COPY test.f90 .
+RUN gfortran -g test.f90 -o test
+CMD ["./test"]
