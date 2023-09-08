@@ -1,23 +1,34 @@
-# Using eBPF to Retrofit ⏮️ and Extend ⏭️ Observability
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
----
+    <title>reveal-md</title>
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="stylesheet" href="./dist/reset.css" />
+    <link rel="stylesheet" href="./dist/reveal.css" />
+    <link rel="stylesheet" href="./dist/theme/black.css" id="theme" />
+    <link rel="stylesheet" href="./css/highlight/base16/zenburn.css" />
 
+
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides"><section  data-markdown><script type="text/template"># Using eBPF to Retrofit ⏮️ and Extend ⏭️ Observability
+</script></section><section  data-markdown><script type="text/template">
 ## whoami
 
 - 👋 Hi, I'm Dave Tucker
 - 👷 Principal Sw Eng. OCTO Networking
 - 🤓 Networking, Linux Container and eBPF nerd
-
----
-
+</script></section><section  data-markdown><script type="text/template">
 ## ⚠️ Disclaimer ⚠️
 
 - This is forward looking technology
 - Not all features have been implemented
 - Expected timeframe to completion: 2023Q4
-
----
-
+</script></section><section ><section data-markdown><script type="text/template">
 ## Retrofit
 
 **retrofit** *(verb)*
@@ -25,18 +36,14 @@
 /ˈrɛtrə(ʊ)ˌfɪt/
 
 add (a component or accessory) to something that did not have it when manufactured.
-
-----
-
+</script></section><section data-markdown><script type="text/template">
 ## Why?
 
 Observability is awesome if you have the ability to instrument
 your applications...
 
 But what if you want to observe a legacy app that you brought into OpenShift?
-
-----
-
+</script></section><section data-markdown><script type="text/template">
 ## Triangle Corps 🔺
 
 Triangle Corps was establised in the early 1970s as the premium provider of
@@ -44,9 +51,7 @@ equilateral triangle area calculations.
 
 They used to run an IBM Mainframe but decided to migrate their stack over to
 OpenShift.
-
-----
-
+</script></section><section data-markdown><script type="text/template">
 ## The Legacy App
 
 FORTRAN 🎉
@@ -78,9 +83,7 @@ FUNCTION Area(x,y,z)
     height = x*SIN(theta); Area = 0.5*y*height
 END FUNCTION Area
 ```
-
-----
-
+</script></section><section data-markdown><script type="text/template">
 ## The problem
 
 The customer wants to monitor the usage of their area service, but:
@@ -88,9 +91,7 @@ The customer wants to monitor the usage of their area service, but:
 - There are OpenTelemetry of Prometheus bindings for FORTRAN
 - The employee who wrote this has retired
 - They're working on a V2 service, but need the monitoring in place now.
-
-----
-
+</script></section><section data-markdown><script type="text/template">
 ## The solution
 
 Knowing a little bit about the layout of the program...
@@ -108,9 +109,7 @@ Knowing a little bit about the layout of the program...
                 DW_AT_frame_base        (DW_OP_call_frame_cfa)
                 DW_AT_call_all_tail_calls       (true)
 ```
-
-----
-
+</script></section><section data-markdown><script type="text/template">
 ## eBPF
 
 We can write an eBPF probe that increments a counter each time that function is
@@ -138,9 +137,7 @@ int area_counter(struct pt_regs *ctx)
 	return 0;
 }
 ```
-
-----
-
+</script></section><section data-markdown><script type="text/template">
 ## And deploy it on OpenShift
 
 With a little help from bpfd - our OpenShift eBPF operator.
@@ -177,9 +174,7 @@ spec:
       name: area
   process: /test
 ```
-
-----
-
+</script></section><section data-markdown><script type="text/template">
 ## Result
 
 Metrics are available in OTEL/Prometheus format:
@@ -189,9 +184,7 @@ Metrics are available in OTEL/Prometheus format:
 # TYPE triangle_corp_area_total counter
 triangle_corp_area_total 51
 ```
-
-----
-
+</script></section><section data-markdown><script type="text/template">
 ## Outcome
 
 Triangle Corps 🔺 are able to measure the total number of requests/second handled
@@ -200,9 +193,7 @@ by their legacy application.
 This not only helps them monitor their legacy service, but they are also able
 to test their V2 service to ensure they are matching or exceeding performance
 expections.
-
----
-
+</script></section></section><section ><section data-markdown><script type="text/template">
 ## Extend
 
 **extend** *(verb)*
@@ -210,32 +201,24 @@ expections.
 /ɪkˈstend/
 
 [transitive] to make a business, an idea, an influence, etc. cover more areas or operate in more places
-
-----
-
+</script></section><section data-markdown><script type="text/template">
 ## Why?
 
 Kernel metrics can be key to indentifying the root cause of performance issues.
-
-----
-
+</script></section><section data-markdown><script type="text/template">
 ## Triangle Corps 🔺
 
 - Area App v2 has been released 🎊
 - Customer demand for Area App v2 has increased, so they added some horizontal scaling
 - From their metrics they can see spikes in request latency, but CPU usage seems steady
 - They would like to know if this is an application, or a platform issue
-
-----
-
+</script></section><section data-markdown><script type="text/template">
 ## Writing an eBPF Probe
 
 We can adapt [runqslower](https://github.com/iovisor/bcc/blob/master/libbpf-tools/runqslower.bpf.c).
 
 Instead of producing a stream of events, we'll produce a summary.
-
-----
-
+</script></section><section data-markdown><script type="text/template">
 ## Deploying on OpenShift
 
 And with some more help from bpfd... we can deploy on OpenShift.
@@ -272,9 +255,7 @@ spec:
       name: area
   process: /test
 ```
-
-----
-
+</script></section><section data-markdown><script type="text/template">
 ## Result
 
 Metrics are available in OTEL/Prometheus format:
@@ -289,18 +270,14 @@ triangle_corp_runq_microseconds{quantile="1"} 0
 triangle_corp_runq_microseconds_sum 0
 triangle_corp_runq_microseconds_count
 ```
-
-----
-
+</script></section><section data-markdown><script type="text/template">
 ## Outcome
 
 Triangle Corps 🔺 notice a correlation between time spent waiting for CPU and 
 their request latency. Area App V2 is fine, but it turns out that replicas of
 Area App V2 are competing for CPU time. Adding more worker nodes and adding
 some topology-spread constraints to pods.
-
----
-
+</script></section></section><section  data-markdown><script type="text/template">
 ## Conclusion
 
 eBPF is NOT Just for Customers
@@ -311,3 +288,56 @@ so you can use it too!
 - Provides a K8s native way to manage eBPF.
 - Enhanced Security and Auditability of eBPF usage.
 - Exports its own metrics about eBPF usage on the cluster, which could be useful to us, and customers.
+</script></section></div>
+    </div>
+
+    <script src="./dist/reveal.js"></script>
+
+    <script src="./plugin/markdown/markdown.js"></script>
+    <script src="./plugin/highlight/highlight.js"></script>
+    <script src="./plugin/zoom/zoom.js"></script>
+    <script src="./plugin/notes/notes.js"></script>
+    <script src="./plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        slideNumber: true,
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+    </script>
+  </body>
+</html>
